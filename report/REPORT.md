@@ -128,7 +128,7 @@ Chạy cả 3 chunker trên cùng 5 benchmark queries với cùng OpenAI `text-e
 | Huỳnh Văn Nghĩa | SentenceChunker(500) | GPT-4o-mini | ChromaDB | **9.5%** | **100%** |
 
 **Strategy nào tốt nhất cho domain này? Tại sao?**
-> Kết quả nhóm cho thấy **embedding model quan trọng hơn chunking strategy**. Cùng dùng RecursiveChunker nhưng: OpenAI embedding đạt 100%, Qwen 0.8B đạt 95.2%, MiniLM đạt 66.8%. Tuy nhiên, **Metadata Filter là "lưới an toàn" cực kỳ hiệu quả** — nó kéo tất cả mọi cấu hình lên 100%, kể cả trường hợp Nghĩa chỉ đạt 9.5% khi không filter. Đối với domain y tế có phân loại chuyên khoa rõ ràng, kết hợp RecursiveChunker + metadata filtering là lựa chọn tối ưu.
+> Trong thí nghiệm này, sự khác biệt về embedding model tạo ra chênh lệch precision lớn nhất: cùng RecursiveChunker nhưng OpenAI đạt 100%, Qwen 0.8B đạt 95.2%, MiniLM đạt 66.8%. Tuy nhiên, điều này **không có nghĩa embedding model quan trọng hơn chunking strategy nói chung** — vì tất cả thành viên đều đã dùng chunking hợp lý (Recursive/Sentence), tạo nền tảng context sạch. Trong thực tế, **chunking strategy là nền tảng quyết định chất lượng ngữ cảnh** — chunk xấu thì embedding mạnh đến mấy cũng không cứu được. **Metadata Filter là "lưới an toàn" cực kỳ hiệu quả** — kéo tất cả cấu hình lên 100%, kể cả trường hợp Nghĩa chỉ đạt 9.5% khi không filter. Đối với domain y tế, kết hợp chunking tốt (RecursiveChunker giữ nguyên cấu trúc section) + metadata filtering là lựa chọn tối ưu.
 
 ---
 
@@ -266,7 +266,7 @@ Cấu hình: RecursiveChunker(500) + OpenAI text-embedding-3-small + In-memory s
 
 ### So Sánh Kết Quả Trong Nhóm
 
-> Bảng so sánh chi tiết 4 thành viên (strategy, embedding model, vector DB, precision) tại **Section 3 — So Sánh Với Thành Viên Khác**. Kết luận: embedding model ảnh hưởng precision nhiều hơn chunking strategy, nhưng metadata filter san phẳng mọi khác biệt — đưa tất cả thành viên lên 100%.
+> Bảng so sánh chi tiết 4 thành viên (strategy, embedding model, vector DB, precision) tại **Section 3 — So Sánh Với Thành Viên Khác**. Kết luận: chunking strategy là nền tảng tạo context sạch, embedding model ảnh hưởng precision rõ rệt trong thí nghiệm này, và metadata filter san phẳng mọi khác biệt — đưa tất cả thành viên lên 100%.
 
 ---
 
