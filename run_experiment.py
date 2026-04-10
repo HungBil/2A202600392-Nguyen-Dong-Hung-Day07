@@ -82,6 +82,7 @@ BENCHMARK_QUERIES = [
         "query": "Các biện pháp cận lâm sàng nào giúp đánh giá tình trạng mạch máu và tưới máu bàn chân ở người bệnh đái tháo đường?",
         "gold_answer": "Sử dụng các biện pháp đo ABI (Ankle Brachial Index) và đo TcPO2 (transcutaneous oxygen tension).",
         "expected_source": "ban-chan-dai-thao-duong",
+        "filter": {"category": "Nội tiết - Đái tháo đường"}
     },
     {
         "query": "Thời gian dùng kháng sinh điều trị áp xe phổi nguyên phát thường kéo dài bao lâu?",
@@ -92,11 +93,13 @@ BENCHMARK_QUERIES = [
         "query": "Nguyên nhân hàng đầu gây ra băng huyết sau sinh là gì?",
         "gold_answer": "Nguyên nhân hàng đầu (hay gặp nhất) gây băng huyết sau sinh là đờ tử cung.",
         "expected_source": "bang-huyet-sau-sinh",
+        "filter": {"category": "Sản phụ khoa"}
     },
     {
         "query": "Ăn không tiêu thường xuyên có thể là dấu hiệu của những bệnh tiêu hóa nguy hiểm nào?",
         "gold_answer": "Viêm loét dạ dày, trào ngược dạ dày thực quản, viêm dạ dày, liệt dạ dày, thoát vị hoành, sỏi mật, viêm túi mật, viêm tụy, IBS, bệnh celiac, tắc ruột non, ung thư dạ dày.",
         "expected_source": "an-khong-tieu",
+        "filter": {"category": "Tiêu hóa - Gan mật"}
     },
 ]
 
@@ -186,8 +189,14 @@ def run_retrieval_experiment(docs: list[Document], embedder):
         print(f"\n  Q{i}: {bq['query']}")
         print(f"  Gold: {bq['gold_answer'][:100]}...")
         print(f"  Expected source: {bq['expected_source']}")
-
-        results = store.search(bq["query"], top_k=3)
+        
+        filter_meta = bq.get("filter")
+        if filter_meta:
+            print(f"  * Using Metadata Filter: {filter_meta}")
+            results = store.search_with_filter(bq["query"], metadata_filter=filter_meta, top_k=3)
+        else:
+            results = store.search(bq["query"], top_k=3)
+            
         hit = False
         for rank, r in enumerate(results, 1):
             doc_id = r["metadata"].get("doc_id", r.get("id", "?"))
